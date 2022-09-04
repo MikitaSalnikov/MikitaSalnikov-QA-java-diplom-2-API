@@ -1,64 +1,53 @@
-import api.client.OrdersClient;
+import api.client.CustomerClient;
+import api.client.OrderClient;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import pojo.UserRegistrated;
 
-import java.io.File;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.notNullValue;
-
-@RunWith(Parameterized.class)
 public class CreateOrderTest {
-    private final String color;
-    String track;
-
-    public CreateOrderTest(String color) {
-        this.color = color;
-    }
-
-    @Parameterized.Parameters(name = "Тестовые данные: {0} {1}")
-    public static Object[] dataForTest() {
-        return new Object[][]{
-                {"createOrderBlack.json"},
-                {"createOrderGrey.json"},
-                {"createOrderBlackAndGrey.json"},
-                {"createOrderWOColor.json"}
-        };
-    }
+    private String accessToken;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru/";
+        RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/";
+        CustomerClient customer = new CustomerClient();
+        Response ok = customer.createCustomer("correctRegistration.json");
+        accessToken = ok.as(UserRegistrated.class).getAccessToken();
     }
 
     @After
     public void tearDown() {
-        try {
-            OrdersClient ordersClient = new OrdersClient();
-            ordersClient.cancelOrder(track);
-        } catch (Exception e) {
-        }
+        CustomerClient customer = new CustomerClient();
+        customer.deleteCustomer(accessToken);
     }
-
     @Test
-    @DisplayName("Check struct of correct response")
-    public void trackReturns() {
-        OrdersClient ordersClient = new OrdersClient();
-        Response correctAnswer = ordersClient.createOrder("createOrderBlack.json");
-        correctAnswer.then().assertThat().statusCode(201).and().body("track", notNullValue());
+    public void makeOrderWithAuth(){
+        OrderClient orderClient = new OrderClient();
+        Response correctOrder = orderClient.createOrder(accessToken, "correctOrder.json");
+        correctOrder.then().assertThat().statusCode(200).and().body("order.number", notNullValue()).and().body("success", is(true));
     }
-
     @Test
-    @DisplayName("Check order create with all avail colors")
-    public void createOrder() {
-        OrdersClient ordersClient = new OrdersClient();
-        Response correctAnswer = ordersClient.createOrder(color);
-        correctAnswer.then().assertThat().statusCode(201).and().body("track", notNullValue());
+    public void makeOrderWOAuth(){
+        OrderClient orderClient = new OrderClient();
+        Response correctOrder = orderClient.createOrder("correctOrder.json");
+        correctOrder.then().assertThat().statusCode(200).and().body("order.number", notNullValue()).and().body("success", is(true));
+    }
+    @Test
+    public void makeOrderWOIngredients(){
+        OrderClient orderClient = new OrderClient();
+        Response correctOrder = orderClient.createOrder(accessToken, "orderWithoutIngredients.json");
+        correctOrder.then().assertThat().statusCode(400).and().body("message", is("Ingredient ids must be provided")).and().body("success", is(false));
+    }
+    @Test
+    public void makeOrderWithWrongIngredients(){
+        OrderClient orderClient = new OrderClient();
+        Response correctOrder = orderClient.createOrder(accessToken, "orderWithWrongIngredients.json");
+        correctOrder.then().assertThat().statusCode(500);
     }
 }
