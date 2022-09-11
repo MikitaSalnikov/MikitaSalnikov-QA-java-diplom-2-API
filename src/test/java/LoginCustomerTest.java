@@ -10,7 +10,6 @@ import static org.hamcrest.CoreMatchers.is;
 
 public class LoginCustomerTest {
     private String accessToken;
-
     @Before
     public void setUp() {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/";
@@ -19,27 +18,26 @@ public class LoginCustomerTest {
         accessToken = ok.as(UserRegistrated.class).getAccessToken();
     }
     @After
-    public void tearDown(){
+    public void tearDown() {
         CustomerClient customer = new CustomerClient();
         customer.deleteCustomer(accessToken);
     }
-
     @Test
-    public void checkLogin(){
+    public void checkLogin() {
         CustomerClient customer = new CustomerClient();
         Response login = customer.loginCustomer("correctAuth.json");
         login.then().assertThat().statusCode(200).and().body("success", is(true));
     }
     @Test
-    public void noLogin(){
+    public void noLogin() {
         CustomerClient customer = new CustomerClient();
         Response noLogin = customer.loginCustomer("wrongLoginAuth.json");
-        noLogin.then().assertThat().statusCode(401).and().body("success", is(false)).body("message",is("email or password are incorrect"));
+        noLogin.then().assertThat().statusCode(401).and().body("success", is(false)).body("message", is("email or password are incorrect"));
     }
     @Test
-    public void noPassword(){
+    public void noPassword() {
         CustomerClient customer = new CustomerClient();
         Response noLogin = customer.loginCustomer("wrongPasswordAuth.json");
-        noLogin.then().assertThat().statusCode(401).and().body("success", is(false)).body("message",is("email or password are incorrect"));
+        noLogin.then().assertThat().statusCode(401).and().body("success", is(false)).body("message", is("email or password are incorrect"));
     }
 }

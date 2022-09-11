@@ -12,7 +12,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class CreateOrderTest {
     private String accessToken;
-
     @Before
     public void setUp() {
         RestAssured.baseURI = "https://stellarburgers.nomoreparties.site/";
@@ -20,32 +19,31 @@ public class CreateOrderTest {
         Response ok = customer.createCustomer("correctRegistration.json");
         accessToken = ok.as(UserRegistrated.class).getAccessToken();
     }
-
     @After
     public void tearDown() {
         CustomerClient customer = new CustomerClient();
         customer.deleteCustomer(accessToken);
     }
     @Test
-    public void makeOrderWithAuth(){
+    public void makeOrderWithAuth() {
         OrderClient orderClient = new OrderClient();
         Response correctOrder = orderClient.createOrder(accessToken, "correctOrder.json");
         correctOrder.then().assertThat().statusCode(200).and().body("order.number", notNullValue()).and().body("success", is(true));
     }
     @Test
-    public void makeOrderWOAuth(){
+    public void makeOrderWOAuth() {
         OrderClient orderClient = new OrderClient();
         Response correctOrder = orderClient.createOrder("correctOrder.json");
         correctOrder.then().assertThat().statusCode(200).and().body("order.number", notNullValue()).and().body("success", is(true));
     }
     @Test
-    public void makeOrderWOIngredients(){
+    public void makeOrderWOIngredients() {
         OrderClient orderClient = new OrderClient();
         Response correctOrder = orderClient.createOrder(accessToken, "orderWithoutIngredients.json");
         correctOrder.then().assertThat().statusCode(400).and().body("message", is("Ingredient ids must be provided")).and().body("success", is(false));
     }
     @Test
-    public void makeOrderWithWrongIngredients(){
+    public void makeOrderWithWrongIngredients() {
         OrderClient orderClient = new OrderClient();
         Response correctOrder = orderClient.createOrder(accessToken, "orderWithWrongIngredients.json");
         correctOrder.then().assertThat().statusCode(500);
