@@ -1,4 +1,5 @@
 import api.client.CustomerClient;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -23,6 +24,7 @@ public class CreateCustomerTest {
         }
     }
     @Test
+    @DisplayName("Корректная регистрация пользователя")
     public void checkCreateCustomer() {
         CustomerClient create = new CustomerClient();
         Response ok = create.createCustomer("correctRegistration.json");
@@ -30,6 +32,7 @@ public class CreateCustomerTest {
         ok.then().assertThat().statusCode(200).and().body("success", is(true));
     }
     @Test
+    @DisplayName("Регистрация уже зарегистрированного пользователя")
     public void customerExists() {
         CustomerClient create = new CustomerClient();
         Response duplicate = create.createCustomer("correctRegistration.json");
@@ -42,6 +45,7 @@ public class CreateCustomerTest {
         duplicate.then().assertThat().statusCode(403).and().body("success", is(false)).body("message", is("User already exists"));
     }
     @Test
+    @DisplayName("Регистрация без email")
     public void noEmail() {
         CustomerClient create = new CustomerClient();
         Response noEmail = create.createCustomer("noEmailRegister.json");
@@ -52,6 +56,7 @@ public class CreateCustomerTest {
         noEmail.then().assertThat().statusCode(403).and().body("success", is(false)).body("message", is("Email, password and name are required fields"));
     }
     @Test
+    @DisplayName("Регистрация без пароля")
     public void noPassword() {
         CustomerClient create = new CustomerClient();
         Response noPassword = create.createCustomer("noPasswordRegister.json");
@@ -62,6 +67,7 @@ public class CreateCustomerTest {
         noPassword.then().assertThat().statusCode(403).and().body("success", is(false)).body("message", is("Email, password and name are required fields"));
     }
     @Test
+    @DisplayName("Регистрация без имени")
     public void noName() {
         CustomerClient create = new CustomerClient();
         Response noName = create.createCustomer("noNameRegister.json");

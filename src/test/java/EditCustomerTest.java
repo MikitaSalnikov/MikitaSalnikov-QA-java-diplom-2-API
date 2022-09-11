@@ -1,4 +1,5 @@
 import api.client.CustomerClient;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -23,18 +24,21 @@ public class EditCustomerTest {
         customer.deleteCustomer(accessToken);
     }
     @Test
+    @DisplayName("Редактирование имени пользователя")
     public void editName() {
         CustomerClient customer = new CustomerClient();
         Response editName = customer.editCustomer(accessToken, "editUserName.json");
         editName.then().assertThat().statusCode(200).and().body("user.name", is("Nikita"));
     }
     @Test
+    @DisplayName("Редактирование email пользователя")
     public void editEmail() {
         CustomerClient customer = new CustomerClient();
         Response editName = customer.editCustomer(accessToken, "editUserEmail.json");
         editName.then().assertThat().statusCode(200).and().body("user.email", is("somenew@email.com"));
     }
     @Test
+    @DisplayName("Редактирование пароля пользователя")
     public void editWOAuth() {
         CustomerClient customer = new CustomerClient();
         Response editName = customer.editCustomer("", "editUserEmail.json");

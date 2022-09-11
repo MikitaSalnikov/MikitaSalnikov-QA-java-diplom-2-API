@@ -1,4 +1,5 @@
 import api.client.CustomerClient;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -23,18 +24,21 @@ public class LoginCustomerTest {
         customer.deleteCustomer(accessToken);
     }
     @Test
+    @DisplayName("Авторизация существующего пользователя")
     public void checkLogin() {
         CustomerClient customer = new CustomerClient();
         Response login = customer.loginCustomer("correctAuth.json");
         login.then().assertThat().statusCode(200).and().body("success", is(true));
     }
     @Test
+    @DisplayName("Авторизация без логина")
     public void noLogin() {
         CustomerClient customer = new CustomerClient();
         Response noLogin = customer.loginCustomer("wrongLoginAuth.json");
         noLogin.then().assertThat().statusCode(401).and().body("success", is(false)).body("message", is("email or password are incorrect"));
     }
     @Test
+    @DisplayName("Авторизация без пароля")
     public void noPassword() {
         CustomerClient customer = new CustomerClient();
         Response noLogin = customer.loginCustomer("wrongPasswordAuth.json");

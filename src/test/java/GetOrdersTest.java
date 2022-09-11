@@ -1,5 +1,6 @@
 import api.client.CustomerClient;
 import api.client.OrderClient;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -28,12 +29,14 @@ public class GetOrdersTest {
         customer.deleteCustomer(accessToken);
     }
     @Test
+    @DisplayName("Получение списка заказов без авторизации")
     public void getOrderWOAuth() {
         OrderClient orderClient = new OrderClient();
         Response orderList = orderClient.getCustomersOrders("");
         orderList.then().assertThat().statusCode(401).and().body("message", is("You should be authorised"));
     }
     @Test
+    @DisplayName("Получение списка заказов авторизованного пользователя")
     public void getOrderAuth() {
         OrderClient orderClient = new OrderClient();
         Response orderList = orderClient.getCustomersOrders(accessToken);
